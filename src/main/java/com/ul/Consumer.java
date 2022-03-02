@@ -3,38 +3,55 @@
  */
 package com.ul;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.concurrent.*;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.BlockingQueue;
 
 public class Consumer {
 
-    private static final Logger logger = LogManager.getLogger("Consumer");
-    private final BlockingQueue<Message> queue;
-    private Thread consumerThread = null;
+  private final BlockingQueue<Message> queue;
+  private Thread consumerThread = null;
+  private ArrayList<Message> messageArrayList = new ArrayList<>();
+  private final DateTimeFormatter dateFormatter =
+      DateTimeFormatter.ofPattern("dd-MM-yyyy - HH:mm:ss.nnn");
 
-    public Consumer(BlockingQueue<Message> queue) {
-        this.queue = queue;
-    }
+  public Consumer(BlockingQueue<Message> queue) {
+    this.queue = queue;
+  }
 
-    public void startConsuming() {
-        consumerThread = new Thread(() -> {
-            while (true) {
+  public void startConsuming() {
+    consumerThread =
+        new Thread(
+            () -> {
+              messageArrayList = new ArrayList<>();
+              while (true) {
                 try {
-                    Message message = queue.take();
-                    logger.info(message);
-                } catch (InterruptedException e) {
-                    // executing thread has been interrupted, exit loop
-                    break;
-                }
-            }
-        });
-        consumerThread.start();
-    }
+                  messageArrayList.add(queue.take());
+                  if (messageArrayList.size() == 10) {
+                    Collections.sort(messageArrayList);
+                    for (Message message : messageArrayList) {
+                      System.out.println(
+                          dateFormatter.format(LocalDateTime.now())
+                              + " - "
+                              + message.getPriority()
+                              + " - "
+                              + message.getText());
+                    }
+                    messageArrayList = new ArrayList<>();
+                  }
 
-    public void stopConsuming() {
-        consumerThread.interrupt();
-    }
+                } catch (InterruptedException e) {
+                  // executing thread has been interrupted, exit loop
+                  break;
+                }
+              }
+            });
+    consumerThread.start();
+  }
+
+  public void stopConsuming() {
+    consumerThread.interrupt();
+  }
 }

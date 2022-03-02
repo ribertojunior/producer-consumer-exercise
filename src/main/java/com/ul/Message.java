@@ -3,32 +3,38 @@
  */
 package com.ul;
 
-public class Message {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-    public enum Priority {
+@Getter
+@AllArgsConstructor
+public class Message implements Comparable<Message> {
 
-        HIGH, MEDIUM, LOW
+  public enum Priority {
+    HIGH,
+    MEDIUM,
+    LOW
+  }
+
+  private long timestamp;
+  private Priority priority;
+  private String text;
+
+  @Override
+  public int compareTo(Message otherMessage) {
+    if (otherMessage.getPriority() == this.getPriority()) {
+      return 0;
     }
-
-    private long timestamp;
-    private Priority priority;
-    private String text;
-
-    public Message(long timestamp, Priority priority, String text) {
-        this.timestamp = timestamp;
-        this.priority = priority;
-        this.text = text;
+    if (getPriority() == Priority.LOW) {
+      return -1;
     }
-
-    public long getTimestamp() {
-        return timestamp;
+    if (getPriority() == Priority.MEDIUM) {
+      if (otherMessage.getPriority() == Priority.LOW) {
+        return 1;
+      } else {
+        return -1;
+      }
     }
-
-    public Priority getPriority() {
-        return priority;
-    }
-
-    public String getText() {
-        return text;
-    }
+    return 1;
+  }
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 public class Main {
 
     public static void main(String[] args) {
-        BlockingQueue<Message> queue = new LinkedBlockingQueue<Message>();
+        BlockingQueue<Message> queue = new LinkedBlockingQueue<>();
         Producer producer = new Producer(queue);
         producer.startProducing();
 
