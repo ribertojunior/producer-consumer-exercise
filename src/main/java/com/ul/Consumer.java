@@ -3,11 +3,16 @@
  */
 package com.ul;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.concurrent.*;
+
 
 public class Consumer {
 
-    private BlockingQueue<Message> queue;
+    private static final Logger logger = LogManager.getLogger("HelloWorld");
+    private final BlockingQueue<Message> queue;
     private Thread consumerThread = null;
 
     public Consumer(BlockingQueue<Message> queue) {
@@ -15,17 +20,14 @@ public class Consumer {
     }
 
     public void startConsuming() {
-        consumerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        Message message = queue.take();
-                        System.out.println(message);
-                    } catch (InterruptedException e) {
-                        // executing thread has been interrupted, exit loop
-                        break;
-                    }
+        consumerThread = new Thread(() -> {
+            while (true) {
+                try {
+                    Message message = queue.take();
+                    logger.info(message);
+                } catch (InterruptedException e) {
+                    // executing thread has been interrupted, exit loop
+                    break;
                 }
             }
         });
