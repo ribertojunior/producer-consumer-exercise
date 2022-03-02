@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 
 public class Consumer {
 
-    private static final Logger logger = LogManager.getLogger("HelloWorld");
+    private static final Logger logger = LogManager.getLogger("Consumer");
     private final BlockingQueue<Message> queue;
     private Thread consumerThread = null;
 
