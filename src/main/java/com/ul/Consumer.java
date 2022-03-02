@@ -3,23 +3,24 @@
  */
 package com.ul;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 
+@RequiredArgsConstructor
 public class Consumer {
 
-  private final BlockingQueue<Message> queue;
+  @NonNull private final BlockingQueue<Message> queue;
   private Thread consumerThread = null;
   private ArrayList<Message> messageArrayList = new ArrayList<>();
   private final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern("dd-MM-yyyy - HH:mm:ss.nnn");
 
-  public Consumer(BlockingQueue<Message> queue) {
-    this.queue = queue;
-  }
 
   public void startConsuming() {
     consumerThread =
