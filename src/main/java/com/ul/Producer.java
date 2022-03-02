@@ -3,33 +3,35 @@
  */
 package com.ul;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import java.util.concurrent.BlockingQueue;
 
+@RequiredArgsConstructor
 public class Producer {
 
-    private final BlockingQueue<Message> queue;
-    private int messageCounter = 0;
+  @NonNull private final BlockingQueue<Message> queue;
+  private int messageCounter = 0;
 
-    public Producer(BlockingQueue<Message> queue) {
-        this.queue = queue;
-    }
-
-    public void startProducing() {
-        new Thread(() -> {
-            try {
+  public void startProducing() {
+    new Thread(
+            () -> {
+              try {
                 while (messageCounter != 100) {
-                    Message message = MessageFactory.generateMessage(messageCounter);
-                    queue.add(message);
-                    messageCounter++;
+                  Message message = MessageFactory.generateMessage(messageCounter);
+                  queue.add(message);
+                  messageCounter++;
                 }
-            } catch (InterruptedException e) {
+              } catch (InterruptedException e) {
                 // exit loop quietly
-            }
-        }).start();
-    }
+              }
+            })
+        .start();
+  }
 
-    public void stopProducing() {
-        // set message counter to maximum number of messages to stop loop, allowing thread to exit
-        messageCounter = 100;
-    }
+  public void stopProducing() {
+    // set message counter to maximum number of messages to stop loop, allowing thread to exit
+    messageCounter = 100;
+  }
 }
