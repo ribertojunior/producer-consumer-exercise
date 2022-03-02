@@ -6,6 +6,7 @@ package com.ul;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,34 +21,46 @@ public class Consumer {
   private ArrayList<Message> messageArrayList = new ArrayList<>();
   private final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern("dd-MM-yyyy - HH:mm:ss.nnn");
-
+  private static final String FILENAME = "producer_consumer.log";
 
   public void startConsuming() {
     consumerThread =
         new Thread(
             () -> {
-              messageArrayList = new ArrayList<>();
-              while (true) {
-                try {
-                  messageArrayList.add(queue.take());
-                  if (messageArrayList.size() == 10) {
-                    Collections.sort(messageArrayList);
-                    for (Message message : messageArrayList) {
-                      System.out.println(
-                          dateFormatter.format(LocalDateTime.now())
-                              + " - "
-                              + message.getPriority()
-                              + " - "
-                              + message.getText());
-                    }
-                    messageArrayList = new ArrayList<>();
-                  }
-
-                } catch (InterruptedException e) {
-                  // executing thread has been interrupted, exit loop
-                  break;
+              try {
+                messageArrayList = new ArrayList<>();
+                File file = new File(FILENAME);
+                if (file.exists() && !file.delete()) {
+                  throw new RuntimeException("Cannot delete file!");
                 }
+                BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME));
+                while (true) {
+                  try  {
+                    messageArrayList.add(queue.take());
+                    if (messageArrayList.size() == 10) {
+                      Collections.sort(messageArrayList);
+                      for (Message message : messageArrayList) {
+                        writer.write(
+                                dateFormatter.format(LocalDateTime.now())
+                                        + " - "
+                                        + message.getPriority()
+                                        + " - "
+                                        + message.getText());
+                        writer.newLine();
+                      }
+                      messageArrayList = new ArrayList<>();
+                    }
+
+                  } catch (InterruptedException e) {
+                    // executing thread has been interrupted, exit loop
+                    break;
+                  }
+                }
+                writer.close();
+              } catch (IOException e) {
+                e.printStackTrace();
               }
+
             });
     consumerThread.start();
   }
